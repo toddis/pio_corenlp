@@ -1,0 +1,14 @@
+import AssemblyKeys._
+
+assemblySettings
+
+name := "pio-corenlp"
+
+organization := "io.prediction"
+
+libraryDependencies ++= Seq(
+ "io.prediction" %% "core" % "0.9.2-SNAPSHOT" % "provided",
+  "org.apache.spark" %% "spark-core"    % "1.2.0" % "provided",
+  "org.apache.spark" %% "spark-mllib"   % "1.2.0" % "provided",
+  "edu.stanford.nlp" % "stanford-corenlp" % "3.5.1",
+  "org.scalatest" % "scalatest_2.10" % "2.2.1" % "test")
