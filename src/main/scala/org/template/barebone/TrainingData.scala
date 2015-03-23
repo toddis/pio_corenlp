@@ -1,3 +1,5 @@
 package org.template.barebone
 
-case class TrainingData() extends Serializable
+import edu.stanford.nlp.trees.Tree
+
+case class TrainingData(trainingTrees: List[Tree]) extends Serializable

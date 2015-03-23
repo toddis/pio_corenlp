@@ -17,3 +17,4 @@ manifest.json
 data/vendor
 data/composer.lock
 data/composer.phar
+*.ser.gz

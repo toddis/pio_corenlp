@@ -4,14 +4,15 @@
   "engineFactory": "org.template.barebone.EngineFactory",
   "datasource": {
     "params" : {
-      "appId": 1
+      "trainingPath" : "./data/dev.txt"
     }
   },
   "algorithms": [
     {
       "name": "algo",
       "params": {
-        "mult" : 1
+        "parseModelPath": "./data/englishPCFG.ser.gz",
+        "epoch": 15
       }
     }
   ]

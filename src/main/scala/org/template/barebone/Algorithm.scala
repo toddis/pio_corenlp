@@ -1,10 +1,10 @@
 package org.template.barebone
 
-import java.util.Properties
-
 import edu.stanford.nlp.ling.CoreAnnotations
-import edu.stanford.nlp.pipeline.StanfordCoreNLP
+import edu.stanford.nlp.sentiment.RNNOptions
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
+import edu.stanford.nlp.sentiment.SentimentModel
+import edu.stanford.nlp.sentiment.SentimentTraining
 import grizzled.slf4j.Logger
 import io.prediction.controller.P2LAlgorithm
 import org.apache.spark.SparkContext
@@ -15,29 +15,18 @@ class Algorithm(val ap: AlgorithmParams)
   extends P2LAlgorithm[PreparedData, Model, Query, PredictedResult] {
 
   @transient lazy private val logger = Logger[this.type]
+  val TempModelPath = "/tmp/sentiment.ser.gz"
 
   def train(sc: SparkContext, data: PreparedData): Model = {
-    /*
+    // train and save corenlp sentiment model file
     val rnnOptions = new RNNOptions()
-    val trainingTrees = SentimentUtils.readTreesWithGoldLabels("./data/train.txt")
-    val model = new SentimentModel(rnnOptions, trainingTrees)
+    rnnOptions.setOption(Array("-epochs", ap.epoch.toString), 0)
+    val model = new SentimentModel(rnnOptions, data.trainingTrees)
+    SentimentTraining.train(model, null, data.trainingTrees, null)
+    model.saveSerialized(TempModelPath)
 
-    SentimentTraining.train(model, null, trainingTrees, null)
-    model.saveSerialized(modelPath)
-*/
-    val pipelineProps = new Properties()
-    val tokenizerProps = new Properties()
-    pipelineProps.setProperty("sentiment.model", "./data/sentiment.ser.gz")
-    pipelineProps.setProperty("parse.model", "./data/englishPCFG.ser.gz")
-    pipelineProps.setProperty("annotators", "parse, sentiment")
-    pipelineProps.setProperty("enforceRequirements", "false")
-    pipelineProps.setProperty("ssplit.eolonly", "true")
-    tokenizerProps.setProperty("annotators", "tokenize, ssplit")
-
-    val tokenizer = new StanfordCoreNLP(tokenizerProps)
-    val pipeline = new StanfordCoreNLP(pipelineProps)
-
-    Model(tokenizer, pipeline)
+    // create pio model
+    Model.model(TempModelPath, ap.parseModelPath)
   }
 
   def predict(model: Model, query: Query): PredictedResult = {
