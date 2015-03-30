@@ -1,21 +1,29 @@
 package org.template.barebone
 
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations.GoldClass
 import edu.stanford.nlp.sentiment.SentimentUtils
+import edu.stanford.nlp.trees.Tree
 import io.prediction.controller.{EmptyActualResult, EmptyEvaluationInfo, PDataSource}
+import io.prediction.data.storage.Storage
 import org.apache.spark.SparkContext
 
-import collection.JavaConversions._
-
 class DataSource(val dsp: DataSourceParams) extends PDataSource[
-    TrainingData,
-    EmptyEvaluationInfo,
-    Query,
-    EmptyActualResult] {
+  TrainingData,
+  EmptyEvaluationInfo,
+  Query,
+  EmptyActualResult] {
 
   override def readTraining(sc: SparkContext): TrainingData = {
-    val trainingTrees = SentimentUtils.readTreesWithGoldLabels(dsp.trainingPath)
+    val events = Storage.getPEvents().find(appId = dsp.appId, entityType = Some("tree"))(sc)
 
-    TrainingData(trainingTrees.toList)
+    val trainingTrees = events.map { event =>
+      val tree = Tree.valueOf(event.properties.get[String]("tree"))
+      SentimentUtils.attachLabels(tree, classOf[GoldClass])
+
+      tree
+    }.collect().toList
+
+    TrainingData(trainingTrees)
   }
 }
 
