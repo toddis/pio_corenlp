@@ -1,11 +1,10 @@
-package org.template.barebone
+package io.prediction.sentimentanalysis
+
+import java.util.Properties
 
 import edu.stanford.nlp.ling.CoreAnnotations
-import edu.stanford.nlp.sentiment.RNNOptions
+import edu.stanford.nlp.pipeline.StanfordCoreNLP
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
-import edu.stanford.nlp.sentiment.SentimentModel
-import edu.stanford.nlp.sentiment.SentimentTraining
-import grizzled.slf4j.Logger
 import io.prediction.controller.P2LAlgorithm
 import org.apache.spark.SparkContext
 
@@ -14,19 +13,20 @@ import scala.collection.JavaConversions._
 class Algorithm(val ap: AlgorithmParams)
   extends P2LAlgorithm[PreparedData, Model, Query, PredictedResult] {
 
-  @transient lazy private val logger = Logger[this.type]
-  val TempModelPath = "/tmp/sentiment.ser.gz"
-
   def train(sc: SparkContext, data: PreparedData): Model = {
-    // train and save corenlp sentiment model file
-    val rnnOptions = new RNNOptions()
-    rnnOptions.setOption(Array("-epochs", ap.epoch.toString), 0)
-    val model = new SentimentModel(rnnOptions, data.trainingTrees)
-    SentimentTraining.train(model, null, data.trainingTrees, null)
-    model.saveSerialized(TempModelPath)
+    val pipelineProps = new Properties()
+    val tokenizerProps = new Properties()
+    pipelineProps.setProperty("sentiment.model", ap.sentimentModelPath)
+    pipelineProps.setProperty("parse.model", ap.parseModelPath)
+    pipelineProps.setProperty("annotators", "parse, sentiment")
+    pipelineProps.setProperty("enforceRequirements", "false")
+    pipelineProps.setProperty("ssplit.eolonly", "true")
+    tokenizerProps.setProperty("annotators", "tokenize, ssplit")
 
-    // create pio model
-    Model.model(TempModelPath, ap.parseModelPath)
+    val tokenizer = new StanfordCoreNLP(tokenizerProps)
+    val pipeline = new StanfordCoreNLP(pipelineProps)
+
+    Model(tokenizer, pipeline)
   }
 
   def predict(model: Model, query: Query): PredictedResult = {

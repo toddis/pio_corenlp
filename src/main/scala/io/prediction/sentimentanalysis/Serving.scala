@@ -1,4 +1,4 @@
-package org.template.barebone
+package io.prediction.sentimentanalysis
 
 import io.prediction.controller.LServing
 

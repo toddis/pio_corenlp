@@ -1,10 +1,9 @@
 {
   "id": "default",
   "description": "Default settings",
-  "engineFactory": "org.template.barebone.EngineFactory",
+  "engineFactory": "io.prediction.sentimentanalysis.EngineFactory",
   "datasource": {
     "params" : {
-      "appId" : 3
     }
   },
   "algorithms": [
@@ -12,7 +11,7 @@
       "name": "algo",
       "params": {
         "parseModelPath": "./data/englishPCFG.ser.gz",
-        "epoch": 15
+        "sentimentModelPath": "./data/sentiment.ser.gz"
       }
     }
   ]

@@ -1,8 +1,8 @@
-package org.template.barebone
+package io.prediction.sentimentanalysis
 
-import io.prediction.controller.{Engine, IEngineFactory}
+import io.prediction.controller.{Engine, EngineFactory}
 
-object EngineFactory extends IEngineFactory {
+object EngineFactory extends EngineFactory {
   def apply() = {
     new Engine(
       classOf[DataSource],
