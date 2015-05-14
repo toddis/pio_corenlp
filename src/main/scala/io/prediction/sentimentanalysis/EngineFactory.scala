@@ -11,3 +11,7 @@ object EngineFactory extends EngineFactory {
       classOf[Serving])
   }
 }
+
+class ActualResult(
+  val label: Double
+) extends Serializable
