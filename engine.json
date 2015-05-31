@@ -3,8 +3,6 @@
   "description": "Default settings",
   "engineFactory": "io.prediction.sentimentanalysis.EngineFactory",
   "datasource": {
-    "params" : {
-    }
   },
   "algorithms": [
     {

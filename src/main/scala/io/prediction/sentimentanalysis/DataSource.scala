@@ -32,7 +32,7 @@ class DataSource(val dsp: DataSourceParams) extends PDataSource[
     // into a helper function and have both readTraining and readEval call the
     // helper.
     val labeledPoints: RDD[TweetSentiment] = PEventStore.aggregateProperties(
-      appName = "Tweet Sentiment Analysis",
+      appName = "Tweet_Sentiment_Analysis",
       entityType = "user",
       // only keep entities with these required properties defined
       required = Some(List("tweet", "sentiment")))(sc)
